@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,700;1,200;1,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/button.css">
+    <link rel="stylesheet" href="css/records.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <script src="script.js" defer></script>
+    <title>CRUD</title>
+</head>
+<body>
+    <header>
+        <h1 class="header-title">Cadastro de Clientes</h1>
+    </header>
+    <main>
+                                   <!--BOTÃO QUE ABRE O MODAL NA LINHA 43!!!-->
+        <button type="button" class="button blue mobile" id="cadastrarCliente">Cadastrar Cliente</button>
+        
+        
+        
+        <table class="records">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Celular</th>
+                    <th>Cidade</th>
+                    <th>Criado em</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-tabela">
+                <!--LOCAL AONDE OS REGISTROS SERÃO INSERIDOS!!!-->
+            </tbody>
+        </table>
+                    <!--AQUI ABRE O MODAL!!!-->
+        <div class="modal" id="modal">
+            <div class="modal-content">
+                <header class="modal-header">
+                    <h2>Novo Cliente</h2>
+                    <span class="modal-close" id="modalClose" onclick="fechar_Modal()">&#10006;</span>
+                </header>
+                <form class="modal-form" id="formulario_Modal">
+                    <input type="text"  class="modal-field"  id="nome"    placeholder="Nome do Cliente">
+                    <input type="email" class="modal-field " id="email"   placeholder="e-mail do Cliente">
+                    <input type="text"  class="modal-field"  id="celular" placeholder="Celular do Cliente">
+                    <input type="text"  class="modal-field"  id="cidade"  placeholder="Cidade do Cliente">
+                </form> 
+                <footer class="modal-footer">
+                    <button class="button green" id="salvar">Salvar</button>
+                    <button class="button blue"  id="cancelar" >Cancelar</button>
+                </footer>
+            </div>
+        </div>
+
+    <script>
+      async function carregarDados() {
+      try {
+        const resposta = await fetch('/listar_Registros');
+        const dados = await resposta.json();
+        const corpo = document.getElementById('corpo-tabela');
+        corpo.innerHTML = '';
+
+        dados.forEach(item => {
+          const tr = document.createElement('tr');
+          const criadoEm = new Date(item.createdAt).toLocaleString('pt-BR');
+          tr.innerHTML = `
+            <td>${item.customId}</td>
+            <td>${item.nome}</td>
+            <td>${item.email}</td>
+            <td>${item.celular}</td>
+            <td>${item.cidade}</td>
+            <td>${criadoEm}</td>
+            <td>
+              <span class="icon" onclick="iniciarEdicao(this, ${item.customId})">✏️</span>
+              <span class="icon" onclick="excluirRegistro(${item.customId})">🗑️</span>
+            </td>
+          `;
+          corpo.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+      }
+    }
+
+    function iniciarEdicao(el, id) {
+      const tr = el.closest('tr');
+      const cells = tr.querySelectorAll('td');
+      ['nome', 'email', 'celular', 'cidade'].forEach((field, idx) => {
+        const td = cells[idx + 1];
+        const valor = td.textContent;
+        td.innerHTML = `<input class="edit-field" id="edit-${field}-${id}" value="${valor}">`;
+      });
+      el.textContent = '💾';
+      el.onclick = () => salvarEdicao(id);
+    }
+
+    async function salvarEdicao(id) {
+      const nome = document.getElementById(`edit-nome-${id}`).value.trim();
+      const email = document.getElementById(`edit-email-${id}`).value.trim();
+      const celular = parseInt(document.getElementById(`edit-celular-${id}`).value.trim());
+      const cidade = document.getElementById(`edit-cidade-${id}`).value.trim();
+      
+      // Enviar para o backend
+      const res = await fetch(`/atualizar/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ nome, email, celular, cidade})  // inclui resultado
+      });
+
+      if (res.ok) carregarDados();
+      else alert('Erro ao salvar edição');
+
+    }
+
+    async function excluirRegistro(id) {
+      if (!confirm('Deseja realmente excluir este registro?')) return;
+      const res = await fetch(`/excluir/${id}`, { method: 'DELETE' });
+      if (res.ok) carregarDados();
+      else alert('Erro ao excluir registro');
+    }
+
+    carregarDados();
+    </script>
+    </main>
+    <footer>
+        Copyright &copy; Fernando
+    </footer>
+</body>
+</html>
