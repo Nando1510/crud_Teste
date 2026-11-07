@@ -87,12 +87,13 @@ app.delete('/excluir/:customId', async (req, res) => {
 
 
 // INICIA O SERVIDOR APÓS GARANTIR A CONEXÃO COM O MONGODB
+// INICIA O SERVIDOR APÓS GARANTIR A CONEXÃO COM O MONGODB
 const PORT = process.env.PORT || 3000;
 
 mongoose.connect(mongoURI)
   .then(() => {
     console.log('MongoDB Atlas conectado com sucesso!');
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Servidor rodando na porta ${PORT}`);
     });
   })
