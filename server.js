@@ -4,22 +4,12 @@ const Funcionario = require('./models/Funcionario');
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // CONECTA O SERVIDOR NODE.JS AO BANCO DE DADOS MONGODB
-// SE ELE NÃO EXISTIR AINDA, O MONGODB CRIA AUTOMATICAMENTE QUANDO O USUÁRIO SALVAR O PRIMEIRO DADO.
-mongoose.connect('mongodb://localhost:27017/Agencia')
-  .then(() => console.log('MongoDB conectado!'))
-  .catch(err => console.error('Erro na conexão:', err));
+const mongoURI = process.env.MONGO_URI || 'mongodb+srv://nandohanauer01_db_user:CvSJWZa9fvzqYZQJ@cluster0.fbgabq9.mongodb.net/imcDB?retryWrites=true&w=majority';
 
-
-  
-
-// INICIA O SERVIDOR EXPRESS DENTRO DO NODE.JS
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
 
 
 
@@ -90,4 +80,23 @@ app.delete('/excluir/:customId', async (req, res) => {
   res.json({ message: 'Registro excluído!' });
 });
 
+
+
+
+//NO FIM DO ARQUIVO
+
+
+// INICIA O SERVIDOR APÓS GARANTIR A CONEXÃO COM O MONGODB
+const PORT = process.env.PORT || 3000;
+
+mongoose.connect(mongoURI)
+  .then(() => {
+    console.log('MongoDB Atlas conectado com sucesso!');
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Erro ao conectar ao MongoDB:', err);
+  });
 
