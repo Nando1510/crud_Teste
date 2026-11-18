@@ -8,7 +8,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // CONECTA O SERVIDOR NODE.JS AO BANCO DE DADOS MONGODB
-const mongoURI = process.env.MONGO_URI || 'mongodb+srv://nandohanauer01_db_user:mongoBanco25@cluster0.fbgabq9.mongodb.net/Formulario?retryWrites=true&w=majority';
+const mongoURI = process.env.MONGO_URI || 'mongodb+srv://nandohanauer01_db_user:igreja2026@cluster0.fbgabq9.mongodb.net/Formulario?retryWrites=true&w=majority';
 
 
 
